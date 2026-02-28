@@ -72,5 +72,14 @@ jobs:
           # Optional: Add claude_args to customize behavior and configuration
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
-          # claude_args: '--allowed-tools Bash(gh pr:*)'
+          claude_args: |
+            --allowed-tools
+            Bash(npm:*)
+            Bash(sqlite3:*)
+            mcp__playwright__page_goto
+            mcp__playwright__page_click
+            mcp__playwright__page_fill
+            mcp__playwright__page_screenshot
+            mcp__playwright__page_wait_for_selector
+            mcp__playwright__browser_snapshot
 
