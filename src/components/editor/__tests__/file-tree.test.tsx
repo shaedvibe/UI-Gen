@@ -33,6 +33,9 @@ vi.mock("lucide-react", () => ({
   FileCode: ({ className }: { className?: string }) => (
     <div className={className}>FileCode</div>
   ),
+  Play: ({ className }: { className?: string }) => (
+    <div className={className}>Play</div>
+  ),
 }));
 
 // Helper function to create a mock file system
@@ -218,6 +221,36 @@ test("FileTreeNode selects file when clicked", () => {
   fireEvent.click(screen.getByText("test.js"));
 
   expect(mockSetSelectedFile).toHaveBeenCalledWith("/test.js");
+});
+
+// entry point icon should appear next to the specified file
+
+test("FileTree shows play icon for entry point file", () => {
+  const rootChildren = new Map<string, FileNode>([
+    [
+      "App.jsx",
+      { type: "file", name: "App.jsx", path: "/App.jsx", content: "" },
+    ],
+  ]);
+
+  const mockFileSystem = createMockFileSystem({
+    "/": { type: "directory", name: "", path: "/", children: rootChildren },
+  });
+
+  const mockUseFileSystem = useFileSystem as ReturnType<typeof vi.fn>;
+  mockUseFileSystem.mockReturnValue({
+    fileSystem: mockFileSystem,
+    refreshTrigger: 0,
+    selectedFile: null,
+    setSelectedFile: vi.fn(),
+    entryPoint: "/App.jsx",
+  });
+
+  render(<FileTree />);
+
+  // our mocked Play icon renders text "Play"
+  const appDiv = screen.getByText("App.jsx").parentElement;
+  expect(appDiv?.textContent).toContain("Play");
 });
 
 test("FileTreeNode highlights selected file", () => {

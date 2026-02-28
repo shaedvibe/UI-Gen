@@ -18,6 +18,8 @@ interface FileSystemContextType {
   fileSystem: VirtualFileSystem;
   selectedFile: string | null;
   setSelectedFile: (path: string | null) => void;
+  entryPoint: string | null;
+  setEntryPoint: (path: string | null) => void;
   createFile: (path: string, content?: string) => void;
   updateFile: (path: string, content: string) => void;
   deleteFile: (path: string) => void;
@@ -50,6 +52,7 @@ export function FileSystemProvider({
     return fs;
   });
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [entryPoint, setEntryPoint] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const triggerRefresh = useCallback(() => {
@@ -217,6 +220,8 @@ export function FileSystemProvider({
         fileSystem,
         selectedFile,
         setSelectedFile,
+        entryPoint,
+        setEntryPoint,
         createFile,
         updateFile,
         deleteFile,

@@ -10,9 +10,8 @@ import { AlertCircle } from "lucide-react";
 
 export function PreviewFrame() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const { getAllFiles, refreshTrigger } = useFileSystem();
+  const { getAllFiles, refreshTrigger, entryPoint: contextEntryPoint } = useFileSystem();
   const [error, setError] = useState<string | null>(null);
-  const [entryPoint, setEntryPoint] = useState<string>("/App.jsx");
   const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   useEffect(() => {
@@ -25,22 +24,26 @@ export function PreviewFrame() {
           setError(null);
         }
 
-        // Find the entry point - look for App.jsx, App.tsx, index.jsx, or index.tsx
-        let foundEntryPoint = entryPoint;
-        const possibleEntries = [
-          "/App.jsx",
-          "/App.tsx",
-          "/index.jsx",
-          "/index.tsx",
-          "/src/App.jsx",
-          "/src/App.tsx",
-        ];
+        // Determine entry point: prefer context entry point, then auto-detect
+        let foundEntryPoint: string | null = null;
 
-        if (!files.has(entryPoint)) {
+        if (contextEntryPoint && files.has(contextEntryPoint)) {
+          // Use context entry point if it's valid
+          foundEntryPoint = contextEntryPoint;
+        } else {
+          // Auto-detect entry point - look for App.jsx, App.tsx, index.jsx, or index.tsx
+          const possibleEntries = [
+            "/App.jsx",
+            "/App.tsx",
+            "/index.jsx",
+            "/index.tsx",
+            "/src/App.jsx",
+            "/src/App.tsx",
+          ];
+
           const found = possibleEntries.find((path) => files.has(path));
           if (found) {
             foundEntryPoint = found;
-            setEntryPoint(found);
           } else if (files.size > 0) {
             // Just use the first .jsx/.tsx file found
             const firstJSX = Array.from(files.keys()).find(
@@ -48,7 +51,6 @@ export function PreviewFrame() {
             );
             if (firstJSX) {
               foundEntryPoint = firstJSX;
-              setEntryPoint(firstJSX);
             }
           }
         }
@@ -96,7 +98,7 @@ export function PreviewFrame() {
     };
 
     updatePreview();
-  }, [refreshTrigger, getAllFiles, entryPoint, error, isFirstLoad]);
+  }, [refreshTrigger, getAllFiles, contextEntryPoint, error, isFirstLoad]);
 
   if (error) {
     if (error === "firstLoad") {

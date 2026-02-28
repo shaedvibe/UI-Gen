@@ -5,6 +5,7 @@ import {
   useContext,
   ReactNode,
   useEffect,
+  useMemo,
 } from "react";
 import { useChat as useAIChat } from "@ai-sdk/react";
 import { Message } from "ai";
@@ -33,6 +34,15 @@ export function ChatProvider({
 }: ChatContextProps & { children: ReactNode }) {
   const { fileSystem, handleToolCall } = useFileSystem();
 
+  // Memoize the body so useAIChat gets file updates on each request
+  const body = useMemo(
+    () => ({
+      files: fileSystem.serialize(),
+      projectId,
+    }),
+    [fileSystem, projectId]
+  );
+
   const {
     messages,
     input,
@@ -42,10 +52,7 @@ export function ChatProvider({
   } = useAIChat({
     api: "/api/chat",
     initialMessages,
-    body: {
-      files: fileSystem.serialize(),
-      projectId,
-    },
+    body,
     onToolCall: ({ toolCall }) => {
       handleToolCall(toolCall);
     },

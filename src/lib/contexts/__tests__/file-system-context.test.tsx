@@ -246,6 +246,24 @@ test("uses provided file system when passed", () => {
   expect(result.current.fileSystem).toBe(customFileSystem);
 });
 
+// entry point tests
+
+test("entryPoint is null by default and can be set", () => {
+  const { result } = renderHook(() => useFileSystem(), {
+    wrapper: ({ children }) => <FileSystemProvider>{children}</FileSystemProvider>,
+  });
+
+  expect(result.current.entryPoint).toBeNull();
+  act(() => {
+    result.current.setEntryPoint("/App.jsx");
+  });
+  expect(result.current.entryPoint).toBe("/App.jsx");
+});
+
+// file import behaviour cannot be simulated here since it lives in component code
+
+
+
 // Tool call tests
 test("handles str_replace_editor create command", () => {
   mockFileSystem.createFileWithParents.mockReturnValue("File created");

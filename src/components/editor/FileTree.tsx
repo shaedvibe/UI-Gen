@@ -9,6 +9,7 @@ import {
   Folder,
   FolderOpen,
   FileCode,
+  Play,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -16,11 +17,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface FileTreeNodeProps {
   node: FileNode;
   level: number;
+  entryPoint: string | null;
 }
 
-function FileTreeNode({ node, level }: FileTreeNodeProps) {
+function FileTreeNode({ node, level, entryPoint }: FileTreeNodeProps) {
   const { selectedFile, setSelectedFile } = useFileSystem();
   const [isExpanded, setIsExpanded] = useState(true);
+  const isEntryPoint = node.type === "file" && node.path === entryPoint;
 
   const handleClick = () => {
     if (node.type === "directory") {
@@ -71,11 +74,16 @@ function FileTreeNode({ node, level }: FileTreeNodeProps) {
           </>
         )}
         <span className="truncate text-gray-700">{node.name}</span>
+        {isEntryPoint && (
+          <div title="Entry point" className="ml-auto">
+            <Play className="h-3 w-3 shrink-0 text-green-600" />
+          </div>
+        )}
       </div>
       {node.type === "directory" && isExpanded && children.length > 0 && (
         <div>
           {children.map((child) => (
-            <FileTreeNode key={child.path} node={child} level={level + 1} />
+            <FileTreeNode key={child.path} node={child} level={level + 1} entryPoint={entryPoint} />
           ))}
         </div>
       )}
@@ -84,7 +92,7 @@ function FileTreeNode({ node, level }: FileTreeNodeProps) {
 }
 
 export function FileTree() {
-  const { fileSystem, refreshTrigger } = useFileSystem();
+  const { fileSystem, refreshTrigger, entryPoint } = useFileSystem();
   const rootNode = fileSystem.getNode("/");
 
   if (!rootNode || !rootNode.children || rootNode.children.size === 0) {
@@ -108,7 +116,7 @@ export function FileTree() {
     <ScrollArea className="h-full">
       <div className="py-2" key={refreshTrigger}>
         {rootChildren.map((child) => (
-          <FileTreeNode key={child.path} node={child} level={0} />
+          <FileTreeNode key={child.path} node={child} level={0} entryPoint={entryPoint} />
         ))}
       </div>
     </ScrollArea>

@@ -11,6 +11,8 @@ import { ChatProvider } from "@/lib/contexts/chat-context";
 import { ChatInterface } from "@/components/chat/ChatInterface";
 import { FileTree } from "@/components/editor/FileTree";
 import { CodeEditor } from "@/components/editor/CodeEditor";
+import { FileImport } from "@/components/editor/FileImport";
+import { EntryPointSelector } from "@/components/editor/EntryPointSelector";
 import { PreviewFrame } from "@/components/preview/PreviewFrame";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HeaderActions } from "@/components/HeaderActions";
@@ -91,8 +93,17 @@ export function MainContent({ user, project }: MainContentProps) {
                         minSize={20}
                         maxSize={50}
                       >
-                        <div className="h-full bg-neutral-50 border-r border-neutral-200">
-                          <FileTree />
+                        <div className="h-full bg-neutral-50 border-r border-neutral-200 flex flex-col">
+                          {/* Import Controls */}
+                          <div className="p-3 border-b border-neutral-200 bg-white space-y-3">
+                            <EntryPointSelector />
+                            <FileImport />
+                          </div>
+
+                          {/* File Tree */}
+                          <div className="flex-1 overflow-hidden">
+                            <FileTree />
+                          </div>
                         </div>
                       </ResizablePanel>
 
