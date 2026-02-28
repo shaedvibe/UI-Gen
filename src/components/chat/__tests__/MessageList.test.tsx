@@ -65,7 +65,7 @@ test("MessageList renders messages with parts", () => {
           type: "tool-invocation",
           toolInvocation: {
             toolCallId: "asdf",
-            args: {},
+            args: { command: "create", path: "/test.js" },
             toolName: "str_replace_editor",
             state: "result",
             result: "Success",
@@ -78,8 +78,41 @@ test("MessageList renders messages with parts", () => {
   render(<MessageList messages={messages} />);
 
   expect(screen.getByText("Creating your component...")).toBeDefined();
-  expect(screen.getByText("str_replace_editor")).toBeDefined();
+  // now we expect a human-friendly description rather than the raw tool name
+  expect(screen.getByText("Creating file /test.js")).toBeDefined();
+
+  // Should not show the raw tool name
+  expect(screen.queryByText("str_replace_editor")).toBeNull();
 });
+
+
+
+test("MessageList renders loading state for a pending tool invocation", () => {
+  const messages: Message[] = [
+    {
+      id: "1",
+      role: "assistant",
+      content: "",
+      parts: [
+        {
+          type: "tool-invocation",
+          toolInvocation: {
+            toolCallId: "xyz",
+            args: { command: "insert", path: "/abc.ts" },
+            toolName: "str_replace_editor",
+            state: "pending",
+          },
+        },
+      ],
+    },
+  ];
+
+  render(<MessageList messages={messages} />);
+  expect(screen.getByText("Inserting into file /abc.ts")).toBeDefined();
+  // loading spinner should appear
+  expect(screen.getByText((content) => content.includes("Inserting"))).toBeDefined();
+});
+
 
 test("MessageList shows content for assistant message with content", () => {
   const messages: Message[] = [
